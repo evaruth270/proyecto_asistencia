@@ -2,6 +2,7 @@ import requests
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox, ttk
+from datetime import datetime
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
@@ -14,7 +15,9 @@ def crear_base_de_datos():
             apellido_paterno TEXT,
             apellido_materno TEXT,
             dni TEXT,
-            lugar_procedencia TEXT
+            lugar_procedencia TEXT,
+            fecha TEXT,
+            hora TEXT
         )
     ''')
     conexion.commit()
@@ -24,9 +27,11 @@ def crear_base_de_datos():
 def guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia):
     conexion = sqlite3.connect('datos_personales.db')
     cursor = conexion.cursor()
+    fecha = datetime.now().strftime('%Y-%m-%d')
+    hora = datetime.now().strftime('%H:%M:%S')
     cursor.execute('''
-        INSERT INTO personas (nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia) VALUES (?, ?, ?, ?, ?)
-    ''', (nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia))
+        INSERT INTO personas (nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia, fecha, hora) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia, fecha, hora))
     conexion.commit()
     conexion.close()
 
@@ -57,10 +62,8 @@ def consultar_persona_por_dni(dni):
                 lugar_procedencia = data.get('departamento', 'No disponible')  # Si la API proporciona esta información
                 return (nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia)
             else:
-                messagebox.showerror("Error", "Datos incompletos recibidos de la API.")
                 return None
         else:
-            messagebox.showerror("Error", f"Error en la consulta. Código de estado: {response.status_code}")
             return None
     except Exception as e:
         messagebox.showerror("Error", f"Error al acceder a la API: {e}")
@@ -80,8 +83,10 @@ def consultar_y_mostrar_datos():
         info = f"Nombre Completo: {nombre} {apellido_paterno} {apellido_materno}\nDNI: {dni}\nLugar de Procedencia: {lugar_procedencia}"
         datos_consultados_label.config(text=info)
         boton_guardar.config(state=tk.NORMAL)  # Habilitar el botón de guardar
+        mostrar_formulario(False)
     else:
-        datos_consultados_label.config(text="No se pudo obtener datos de la persona.")
+        datos_consultados_label.config(text="No se pudo obtener datos de la persona. Ingrese los datos manualmente.")
+        mostrar_formulario(True)
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
 
 # Función para guardar los datos consultados
@@ -94,13 +99,37 @@ def guardar_datos():
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
         actualizar_lista_personas()
 
+# Función para guardar datos manualmente ingresados
+def guardar_datos_manual():
+    dni = dni_entry.get()
+    nombre = nombre_entry.get()
+    apellido_paterno = apellido_paterno_entry.get()
+    apellido_materno = apellido_materno_entry.get()
+    lugar_procedencia = lugar_procedencia_entry.get()
+
+    if not dni or not nombre or not apellido_paterno or not apellido_materno:
+        messagebox.showerror("Error", "Todos los campos son obligatorios.")
+        return
+
+    guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia)
+    messagebox.showinfo("Éxito", "Datos guardados correctamente.")
+    actualizar_lista_personas()
+    mostrar_formulario(False)
+
+# Función para mostrar/ocultar formulario manual
+def mostrar_formulario(mostrar):
+    if mostrar:
+        formulario_frame.pack(pady=10)
+    else:
+        formulario_frame.pack_forget()
+
 # Función para actualizar la lista de personas guardadas
 def actualizar_lista_personas():
     personas = obtener_personas()
     lista_personas.delete(0, tk.END)
     if personas:
         for persona in personas:
-            info = f"ID: {persona[0]} - {persona[1]} {persona[2]} {persona[3]}, DNI: {persona[4]}, {persona[5]}"
+            info = f"ID: {persona[0]} - {persona[1]} {persona[2]} {persona[3]}, DNI: {persona[4]}, {persona[5]}, {persona[6]}, {persona[7]}"
             lista_personas.insert(tk.END, info)
     else:
         lista_personas.insert(tk.END, "No hay personas guardadas.")
@@ -153,10 +182,11 @@ def mostrar_login_administrador():
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
     global boton_guardar, dni_entry, datos_consultados_label, lista_personas
+    global formulario_frame, nombre_entry, apellido_paterno_entry, apellido_materno_entry, lugar_procedencia_entry
 
     asistencia_window = tk.Toplevel()
     asistencia_window.title("Registro de Asistencia")
-    asistencia_window.geometry("600x500")
+    asistencia_window.geometry("600x600")
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
@@ -181,6 +211,21 @@ def mostrar_pantalla_registro_asistencia():
     lista_personas = tk.Listbox(asistencia_window, height=10, font=("Helvetica", 12))
     lista_personas.pack(fill=tk.BOTH, padx=20, pady=10, expand=True)
     actualizar_lista_personas()
+
+    formulario_frame = ttk.Frame(asistencia_window)
+    ttk.Label(formulario_frame, text="Apellido Paterno").pack(pady=5)
+    apellido_paterno_entry = ttk.Entry(formulario_frame)
+    apellido_paterno_entry.pack(pady=5)
+    ttk.Label(formulario_frame, text="Apellido Materno").pack(pady=5)
+    apellido_materno_entry = ttk.Entry(formulario_frame)
+    apellido_materno_entry.pack(pady=5)
+    ttk.Label(formulario_frame, text="Nombre").pack(pady=5)
+    nombre_entry = ttk.Entry(formulario_frame)
+    nombre_entry.pack(pady=5)
+    ttk.Label(formulario_frame, text="Lugar de Procedencia").pack(pady=5)
+    lugar_procedencia_entry = ttk.Entry(formulario_frame)
+    lugar_procedencia_entry.pack(pady=5)
+    ttk.Button(formulario_frame, text="Registrar Manualmente", command=guardar_datos_manual).pack(pady=20)
 
     ttk.Button(asistencia_window, text="Salir", command=asistencia_window.destroy).pack(fill=tk.X, padx=20, pady=10)
 
