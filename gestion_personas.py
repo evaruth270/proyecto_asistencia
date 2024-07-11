@@ -1,15 +1,14 @@
 import requests
 import sqlite3
 import tkinter as tk
-from tkinter import simpledialog, messagebox, ttk
+from tkinter import messagebox, ttk
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
     conexion = sqlite3.connect('datos_personales.db')
     cursor = conexion.cursor()
-    cursor.execute('DROP TABLE IF EXISTS personas')
     cursor.execute('''
-        CREATE TABLE personas (
+        CREATE TABLE IF NOT EXISTS personas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT,
             apellido_paterno TEXT,
@@ -79,10 +78,11 @@ def consultar_y_mostrar_datos():
     if datos_persona:
         nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia = datos_persona
         info = f"Nombre Completo: {nombre} {apellido_paterno} {apellido_materno}\nDNI: {dni}\nLugar de Procedencia: {lugar_procedencia}"
-        messagebox.showinfo("Datos Consultados", info)
+        datos_consultados_label.config(text=info)
         boton_guardar.config(state=tk.NORMAL)  # Habilitar el botón de guardar
     else:
-        messagebox.showerror("Error", "No se pudo obtener datos de la persona.")
+        datos_consultados_label.config(text="No se pudo obtener datos de la persona.")
+        boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
 
 # Función para guardar los datos consultados
 def guardar_datos():
@@ -92,17 +92,18 @@ def guardar_datos():
         guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia)
         messagebox.showinfo("Éxito", "Datos guardados correctamente.")
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
+        actualizar_lista_personas()
 
-# Función para mostrar los datos guardados
-def mostrar_datos_guardados():
+# Función para actualizar la lista de personas guardadas
+def actualizar_lista_personas():
     personas = obtener_personas()
+    lista_personas.delete(0, tk.END)
     if personas:
-        info = ""
         for persona in personas:
-            info += f"ID: {persona[0]}\nNombre: {persona[1]} {persona[2]} {persona[3]}\nDNI: {persona[4]}\nLugar de Procedencia: {persona[5]}\n\n"
-        messagebox.showinfo("Personas Guardadas", info)
+            info = f"ID: {persona[0]} - {persona[1]} {persona[2]} {persona[3]}, DNI: {persona[4]}, {persona[5]}"
+            lista_personas.insert(tk.END, info)
     else:
-        messagebox.showerror("Error", "No hay personas guardadas en la base de datos.")
+        lista_personas.insert(tk.END, "No hay personas guardadas.")
 
 # Función para mostrar la pantalla de administrador
 def mostrar_pantalla_administrador():
@@ -151,11 +152,11 @@ def mostrar_login_administrador():
 
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
-    global boton_guardar, dni_entry
+    global boton_guardar, dni_entry, datos_consultados_label, lista_personas
 
     asistencia_window = tk.Toplevel()
     asistencia_window.title("Registro de Asistencia")
-    asistencia_window.geometry("500x400")
+    asistencia_window.geometry("600x500")
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
@@ -163,14 +164,24 @@ def mostrar_pantalla_registro_asistencia():
 
     ttk.Label(asistencia_window, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
 
-    ttk.Label(asistencia_window, text="DNI").pack(pady=5)
-    dni_entry = ttk.Entry(asistencia_window)
-    dni_entry.pack(pady=5)
+    frame_dni = ttk.Frame(asistencia_window)
+    frame_dni.pack(pady=5)
+    ttk.Label(frame_dni, text="DNI").pack(side=tk.LEFT, padx=5)
+    dni_entry = ttk.Entry(frame_dni)
+    dni_entry.pack(side=tk.LEFT, padx=5)
+    ttk.Button(frame_dni, text="Buscar", command=consultar_y_mostrar_datos).pack(side=tk.LEFT, padx=5)
 
-    ttk.Button(asistencia_window, text="Consultar Persona por DNI", command=consultar_y_mostrar_datos).pack(fill=tk.X, padx=20, pady=10)
-    boton_guardar = ttk.Button(asistencia_window, text="Guardar Datos", command=guardar_datos, state=tk.DISABLED)
+    datos_consultados_label = ttk.Label(asistencia_window, text="", font=("Helvetica", 12))
+    datos_consultados_label.pack(pady=10)
+
+    boton_guardar = ttk.Button(asistencia_window, text="Registrar", command=guardar_datos, state=tk.DISABLED)
     boton_guardar.pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(asistencia_window, text="Mostrar Personas Guardadas", command=mostrar_datos_guardados).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(asistencia_window, text="Mostrar Personas Guardadas", command=actualizar_lista_personas).pack(fill=tk.X, padx=20, pady=10)
+
+    lista_personas = tk.Listbox(asistencia_window, height=10, font=("Helvetica", 12))
+    lista_personas.pack(fill=tk.BOTH, padx=20, pady=10, expand=True)
+    actualizar_lista_personas()
+
     ttk.Button(asistencia_window, text="Salir", command=asistencia_window.destroy).pack(fill=tk.X, padx=20, pady=10)
 
 # Función para la pantalla inicial
