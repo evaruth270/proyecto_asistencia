@@ -97,6 +97,7 @@ def guardar_datos():
         messagebox.showinfo("Éxito", "Datos guardados correctamente.")
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
         actualizar_lista_personas()
+        datos_consultados_label.config(text="")
 
 # Función para abrir el formulario manual
 def abrir_formulario_manual(dni):
