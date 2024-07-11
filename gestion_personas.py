@@ -69,7 +69,7 @@ def consultar_persona_por_dni(dni):
 
 # Función para mostrar los datos consultados y permitir guardar
 def consultar_y_mostrar_datos():
-    dni = simpledialog.askstring("Buscar Persona", "Ingrese el DNI:")
+    dni = dni_entry.get()
     if not dni or len(dni) != 8 or not dni.isdigit():
         messagebox.showerror("Error", "Ingrese un DNI válido de 8 dígitos.")
         return
@@ -116,13 +116,15 @@ def mostrar_pantalla_administrador():
     admin_window.title("Administrador")
     admin_window.geometry("500x400")
 
-    ttk.Label(admin_window, text="Administrador", font=("Helvetica", 16)).pack(pady=10)
-    
-    ttk.Button(admin_window, text="Reportes Diarios", command=lambda: generar_reporte("diario")).pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(admin_window, text="Reportes Semanales", command=lambda: generar_reporte("semanal")).pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(admin_window, text="Reportes Mensuales", command=lambda: generar_reporte("mensual")).pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(admin_window, text="Cargar Datos", command=cargar_datos).pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(admin_window, text="Salir", command=admin_window.destroy).pack(fill=tk.X, padx=20, pady=10)
+    menubar = tk.Menu(admin_window)
+    report_menu = tk.Menu(menubar, tearoff=0)
+    report_menu.add_command(label="Reportes Diarios", command=lambda: generar_reporte("diario"))
+    report_menu.add_command(label="Reportes Semanales", command=lambda: generar_reporte("semanal"))
+    report_menu.add_command(label="Reportes Mensuales", command=lambda: generar_reporte("mensual"))
+    menubar.add_cascade(label="Reportes", menu=report_menu)
+    menubar.add_command(label="Cargar Datos", command=cargar_datos)
+    menubar.add_command(label="Salir", command=admin_window.destroy)
+    admin_window.config(menu=menubar)
 
 # Función para validar el login del administrador
 def validar_login(usuario, contrasena):
@@ -149,7 +151,7 @@ def mostrar_login_administrador():
 
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
-    global boton_guardar
+    global boton_guardar, dni_entry
 
     asistencia_window = tk.Toplevel()
     asistencia_window.title("Registro de Asistencia")
@@ -160,6 +162,10 @@ def mostrar_pantalla_registro_asistencia():
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
 
     ttk.Label(asistencia_window, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
+
+    ttk.Label(asistencia_window, text="DNI").pack(pady=5)
+    dni_entry = ttk.Entry(asistencia_window)
+    dni_entry.pack(pady=5)
 
     ttk.Button(asistencia_window, text="Consultar Persona por DNI", command=consultar_y_mostrar_datos).pack(fill=tk.X, padx=20, pady=10)
     boton_guardar = ttk.Button(asistencia_window, text="Guardar Datos", command=guardar_datos, state=tk.DISABLED)
