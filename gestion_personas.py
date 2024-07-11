@@ -83,10 +83,9 @@ def consultar_y_mostrar_datos():
         info = f"Nombre Completo: {nombre} {apellido_paterno} {apellido_materno}\nDNI: {dni}\nLugar de Procedencia: {lugar_procedencia}"
         datos_consultados_label.config(text=info)
         boton_guardar.config(state=tk.NORMAL)  # Habilitar el botón de guardar
-        mostrar_formulario(False)
     else:
         datos_consultados_label.config(text="No se pudo obtener datos de la persona. Ingrese los datos manualmente.")
-        mostrar_formulario(True)
+        abrir_formulario_manual(dni)
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
 
 # Función para guardar los datos consultados
@@ -99,29 +98,50 @@ def guardar_datos():
         boton_guardar.config(state=tk.DISABLED)  # Deshabilitar el botón de guardar
         actualizar_lista_personas()
 
-# Función para guardar datos manualmente ingresados
-def guardar_datos_manual():
-    dni = dni_entry.get()
-    nombre = nombre_entry.get()
-    apellido_paterno = apellido_paterno_entry.get()
-    apellido_materno = apellido_materno_entry.get()
-    lugar_procedencia = lugar_procedencia_entry.get()
+# Función para abrir el formulario manual
+def abrir_formulario_manual(dni):
+    formulario_window = tk.Toplevel()
+    formulario_window.title("Formulario Manual")
+    formulario_window.geometry("400x400")
 
-    if not dni or not nombre or not apellido_paterno or not apellido_materno:
-        messagebox.showerror("Error", "Todos los campos son obligatorios.")
-        return
+    ttk.Label(formulario_window, text="DNI").pack(pady=5)
+    dni_entry_manual = ttk.Entry(formulario_window)
+    dni_entry_manual.pack(pady=5)
+    dni_entry_manual.insert(0, dni)
+    dni_entry_manual.config(state='disabled')
 
-    guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia)
-    messagebox.showinfo("Éxito", "Datos guardados correctamente.")
-    actualizar_lista_personas()
-    mostrar_formulario(False)
+    ttk.Label(formulario_window, text="Apellido Paterno").pack(pady=5)
+    apellido_paterno_entry_manual = ttk.Entry(formulario_window)
+    apellido_paterno_entry_manual.pack(pady=5)
 
-# Función para mostrar/ocultar formulario manual
-def mostrar_formulario(mostrar):
-    if mostrar:
-        formulario_frame.pack(pady=10)
-    else:
-        formulario_frame.pack_forget()
+    ttk.Label(formulario_window, text="Apellido Materno").pack(pady=5)
+    apellido_materno_entry_manual = ttk.Entry(formulario_window)
+    apellido_materno_entry_manual.pack(pady=5)
+
+    ttk.Label(formulario_window, text="Nombre").pack(pady=5)
+    nombre_entry_manual = ttk.Entry(formulario_window)
+    nombre_entry_manual.pack(pady=5)
+
+    ttk.Label(formulario_window, text="Lugar de Procedencia").pack(pady=5)
+    lugar_procedencia_entry_manual = ttk.Entry(formulario_window)
+    lugar_procedencia_entry_manual.pack(pady=5)
+
+    def guardar_datos_manual():
+        nombre = nombre_entry_manual.get()
+        apellido_paterno = apellido_paterno_entry_manual.get()
+        apellido_materno = apellido_materno_entry_manual.get()
+        lugar_procedencia = lugar_procedencia_entry_manual.get()
+
+        if not nombre or not apellido_paterno or not apellido_materno:
+            messagebox.showerror("Error", "Todos los campos son obligatorios.")
+            return
+
+        guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia)
+        messagebox.showinfo("Éxito", "Datos guardados correctamente.")
+        formulario_window.destroy()
+        actualizar_lista_personas()
+
+    ttk.Button(formulario_window, text="Guardar", command=guardar_datos_manual).pack(pady=20)
 
 # Función para actualizar la lista de personas guardadas
 def actualizar_lista_personas():
@@ -182,7 +202,6 @@ def mostrar_login_administrador():
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
     global boton_guardar, dni_entry, datos_consultados_label, lista_personas
-    global formulario_frame, nombre_entry, apellido_paterno_entry, apellido_materno_entry, lugar_procedencia_entry
 
     root = tk.Toplevel()
     root.title("Registro de Asistencia")
@@ -211,21 +230,6 @@ def mostrar_pantalla_registro_asistencia():
     lista_personas = tk.Listbox(root, height=10, font=("Helvetica", 12))
     lista_personas.pack(fill=tk.BOTH, padx=20, pady=10, expand=True)
     actualizar_lista_personas()
-
-    formulario_frame = ttk.Frame(root)
-    ttk.Label(formulario_frame, text="Apellido Paterno").pack(pady=5)
-    apellido_paterno_entry = ttk.Entry(formulario_frame)
-    apellido_paterno_entry.pack(pady=5)
-    ttk.Label(formulario_frame, text="Apellido Materno").pack(pady=5)
-    apellido_materno_entry = ttk.Entry(formulario_frame)
-    apellido_materno_entry.pack(pady=5)
-    ttk.Label(formulario_frame, text="Nombre").pack(pady=5)
-    nombre_entry = ttk.Entry(formulario_frame)
-    nombre_entry.pack(pady=5)
-    ttk.Label(formulario_frame, text="Lugar de Procedencia").pack(pady=5)
-    lugar_procedencia_entry = ttk.Entry(formulario_frame)
-    lugar_procedencia_entry.pack(pady=5)
-    ttk.Button(formulario_frame, text="Registrar Manualmente", command=guardar_datos_manual).pack(pady=20)
 
     ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
 
