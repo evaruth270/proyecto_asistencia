@@ -1,8 +1,11 @@
 import requests
 import sqlite3
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, filedialog
 from datetime import datetime, timedelta
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
@@ -178,6 +181,27 @@ def actualizar_lista_personas():
     else:
         lista_personas.insert(tk.END, "No hay personas guardadas.")
 
+# Función para exportar datos a Excel
+def exportar_excel(personas, tipo):
+    df = pd.DataFrame(personas, columns=["ID", "Nombre", "Apellido Paterno", "Apellido Materno", "DNI", "Lugar Procedencia", "Fecha", "Hora"])
+    df.to_excel(f"reporte_{tipo}.xlsx", index=False)
+    messagebox.showinfo("Exportar a Excel", f"Reporte {tipo} exportado a Excel exitosamente.")
+
+# Función para exportar datos a PDF
+def exportar_pdf(personas, tipo):
+    c = canvas.Canvas(f"reporte_{tipo}.pdf", pagesize=letter)
+    width, height = letter
+    c.drawString(100, height - 40, f"Reporte {tipo.capitalize()}")
+    c.drawString(100, height - 60, "ID   DNI        Apellido Paterno   Apellido Materno   Nombre   Fecha       Hora")
+
+    y = height - 80
+    for persona in personas:
+        c.drawString(100, y, f"{persona[0]}   {persona[4]}   {persona[2]}   {persona[3]}   {persona[1]}   {persona[6]}   {persona[7]}")
+        y -= 20
+
+    c.save()
+    messagebox.showinfo("Exportar a PDF", f"Reporte {tipo} exportado a PDF exitosamente.")
+
 # Función para generar reportes
 def generar_reporte(tipo):
     hoy = datetime.now().date()
@@ -211,9 +235,18 @@ def generar_reporte(tipo):
 
     tree.pack(fill=tk.BOTH, expand=True)
 
-# Función para cargar datos
-def cargar_datos():
-    messagebox.showinfo("Cargar Datos", "Función de cargar datos no implementada.")
+    ttk.Button(reporte_window, text="Exportar a Excel", command=lambda: exportar_excel(personas, tipo)).pack(side=tk.LEFT, padx=10, pady=10)
+    ttk.Button(reporte_window, text="Exportar a PDF", command=lambda: exportar_pdf(personas, tipo)).pack(side=tk.LEFT, padx=10, pady=10)
+
+# Función para cargar datos desde un archivo Excel
+def cargar_datos_desde_excel():
+    archivo = filedialog.askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")])
+    if archivo:
+        df = pd.read_excel(archivo)
+        for _, row in df.iterrows():
+            guardar_persona(row['Nombre'], row['Apellido Paterno'], row['Apellido Materno'], row['DNI'], row['Lugar Procedencia'])
+        messagebox.showinfo("Cargar Datos", "Datos cargados exitosamente desde el archivo Excel.")
+        actualizar_lista_personas()
 
 # Función para mostrar la pantalla de administrador
 def mostrar_pantalla_administrador():
@@ -227,7 +260,7 @@ def mostrar_pantalla_administrador():
     report_menu.add_command(label="Reportes Semanales", command=lambda: generar_reporte("semanal"))
     report_menu.add_command(label="Reportes Mensuales", command=lambda: generar_reporte("mensual"))
     menubar.add_cascade(label="Reportes", menu=report_menu)
-    menubar.add_command(label="Cargar Datos", command=cargar_datos)
+    menubar.add_command(label="Cargar Datos", command=cargar_datos_desde_excel)
     menubar.add_command(label="Salir", command=admin_window.destroy)
     admin_window.config(menu=menubar)
 
