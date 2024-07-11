@@ -104,28 +104,87 @@ def mostrar_datos_guardados():
     else:
         messagebox.showerror("Error", "No hay personas guardadas en la base de datos.")
 
-# Función para la interfaz gráfica de usuario
-def gui():
+# Función para mostrar la pantalla de administrador
+def mostrar_pantalla_administrador():
+    def cargar_datos():
+        messagebox.showinfo("Cargar Datos", "Función de cargar datos no implementada.")
+
+    def generar_reporte(tipo):
+        messagebox.showinfo(f"Reporte {tipo}", f"Generar reporte {tipo} no implementado.")
+
+    admin_window = tk.Toplevel()
+    admin_window.title("Administrador")
+    admin_window.geometry("500x400")
+
+    ttk.Label(admin_window, text="Administrador", font=("Helvetica", 16)).pack(pady=10)
+    
+    ttk.Button(admin_window, text="Reportes Diarios", command=lambda: generar_reporte("diario")).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(admin_window, text="Reportes Semanales", command=lambda: generar_reporte("semanal")).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(admin_window, text="Reportes Mensuales", command=lambda: generar_reporte("mensual")).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(admin_window, text="Cargar Datos", command=cargar_datos).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(admin_window, text="Salir", command=admin_window.destroy).pack(fill=tk.X, padx=20, pady=10)
+
+# Función para validar el login del administrador
+def validar_login(usuario, contrasena):
+    if usuario == "yorchflrs" and contrasena == "george777":
+        mostrar_pantalla_administrador()
+    else:
+        messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
+
+# Función para mostrar la pantalla de login del administrador
+def mostrar_login_administrador():
+    login_window = tk.Toplevel()
+    login_window.title("Login Administrador")
+    login_window.geometry("300x200")
+
+    ttk.Label(login_window, text="Usuario").pack(pady=5)
+    usuario_entry = ttk.Entry(login_window)
+    usuario_entry.pack(pady=5)
+
+    ttk.Label(login_window, text="Contraseña").pack(pady=5)
+    contrasena_entry = ttk.Entry(login_window, show="*")
+    contrasena_entry.pack(pady=5)
+
+    ttk.Button(login_window, text="Login", command=lambda: validar_login(usuario_entry.get(), contrasena_entry.get())).pack(pady=20)
+
+# Función para mostrar la pantalla de registro de asistencia
+def mostrar_pantalla_registro_asistencia():
     global boton_guardar
 
-    root = tk.Tk()
-    root.title("Gestión de Personas Globales")
-    root.geometry("500x400")
+    asistencia_window = tk.Toplevel()
+    asistencia_window.title("Registro de Asistencia")
+    asistencia_window.geometry("500x400")
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
 
-    ttk.Label(root, text="Gestión de Personas Globales", font=("Helvetica", 16)).pack(pady=10)
+    ttk.Label(asistencia_window, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
 
-    ttk.Button(root, text="Consultar Persona por DNI", command=consultar_y_mostrar_datos).pack(fill=tk.X, padx=20, pady=10)
-    boton_guardar = ttk.Button(root, text="Guardar Datos", command=guardar_datos, state=tk.DISABLED)
+    ttk.Button(asistencia_window, text="Consultar Persona por DNI", command=consultar_y_mostrar_datos).pack(fill=tk.X, padx=20, pady=10)
+    boton_guardar = ttk.Button(asistencia_window, text="Guardar Datos", command=guardar_datos, state=tk.DISABLED)
     boton_guardar.pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(root, text="Mostrar Personas Guardadas", command=mostrar_datos_guardados).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(asistencia_window, text="Mostrar Personas Guardadas", command=mostrar_datos_guardados).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(asistencia_window, text="Salir", command=asistencia_window.destroy).pack(fill=tk.X, padx=20, pady=10)
+
+# Función para la pantalla inicial
+def pantalla_inicial():
+    root = tk.Tk()
+    root.title("Sistema de Registro de Asistencia")
+    root.geometry("400x300")
+
+    style = ttk.Style()
+    style.configure("TButton", font=("Helvetica", 12), padding=10)
+    style.configure("TLabel", font=("Helvetica", 12), padding=10)
+
+    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16)).pack(pady=20)
+
+    ttk.Button(root, text="Administrador", command=mostrar_login_administrador).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).pack(fill=tk.X, padx=20, pady=10)
     ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
 
     root.mainloop()
 
 if __name__ == "__main__":
     crear_base_de_datos()
-    gui()
+    pantalla_inicial()
