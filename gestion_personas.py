@@ -2,7 +2,7 @@ import requests
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox, ttk
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
@@ -39,10 +39,13 @@ def guardar_persona(nombre, apellido_paterno, apellido_materno, dni, lugar_proce
         messagebox.showerror("Error", "El DNI ya está registrado.")
 
 # Función para buscar personas en la base de datos
-def obtener_personas():
+def obtener_personas(filtro=None):
     conexion = sqlite3.connect('nueva_base_de_datos.db')
     cursor = conexion.cursor()
-    cursor.execute('SELECT * FROM personas')
+    if filtro:
+        cursor.execute(filtro)
+    else:
+        cursor.execute('SELECT * FROM personas')
     personas = cursor.fetchall()
     conexion.close()
     return personas
@@ -175,17 +178,48 @@ def actualizar_lista_personas():
     else:
         lista_personas.insert(tk.END, "No hay personas guardadas.")
 
+# Función para generar reportes
+def generar_reporte(tipo):
+    hoy = datetime.now().date()
+    filtro = ""
+    if tipo == "diario":
+        filtro = f"SELECT * FROM personas WHERE fecha = '{hoy}'"
+    elif tipo == "semanal":
+        inicio_semana = hoy - timedelta(days=hoy.weekday())
+        filtro = f"SELECT * FROM personas WHERE fecha BETWEEN '{inicio_semana}' AND '{hoy}'"
+    elif tipo == "mensual":
+        inicio_mes = hoy.replace(day=1)
+        filtro = f"SELECT * FROM personas WHERE fecha BETWEEN '{inicio_mes}' AND '{hoy}'"
+
+    personas = obtener_personas(filtro)
+    reporte_window = tk.Toplevel()
+    reporte_window.title(f"Reporte {tipo.capitalize()}")
+    reporte_window.geometry("700x400")
+
+    columns = ("ID", "DNI", "Apellido Paterno", "Apellido Materno", "Nombre", "Fecha", "Hora")
+    tree = ttk.Treeview(reporte_window, columns=columns, show='headings')
+    tree.heading("ID", text="ID")
+    tree.heading("DNI", text="DNI")
+    tree.heading("Apellido Paterno", text="Apellido Paterno")
+    tree.heading("Apellido Materno", text="Apellido Materno")
+    tree.heading("Nombre", text="Nombre")
+    tree.heading("Fecha", text="Fecha")
+    tree.heading("Hora", text="Hora")
+
+    for persona in personas:
+        tree.insert("", tk.END, values=(persona[0], persona[4], persona[2], persona[3], persona[1], persona[6], persona[7]))
+
+    tree.pack(fill=tk.BOTH, expand=True)
+
+# Función para cargar datos
+def cargar_datos():
+    messagebox.showinfo("Cargar Datos", "Función de cargar datos no implementada.")
+
 # Función para mostrar la pantalla de administrador
 def mostrar_pantalla_administrador():
-    def cargar_datos():
-        messagebox.showinfo("Cargar Datos", "Función de cargar datos no implementada.")
-
-    def generar_reporte(tipo):
-        messagebox.showinfo(f"Reporte {tipo}", f"Generar reporte {tipo} no implementado.")
-
     admin_window = tk.Toplevel()
     admin_window.title("Administrador")
-    admin_window.geometry("500x400")
+    admin_window.geometry("800x600")
 
     menubar = tk.Menu(admin_window)
     report_menu = tk.Menu(menubar, tearoff=0)
