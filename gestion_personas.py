@@ -184,35 +184,35 @@ def mostrar_pantalla_registro_asistencia():
     global boton_guardar, dni_entry, datos_consultados_label, lista_personas
     global formulario_frame, nombre_entry, apellido_paterno_entry, apellido_materno_entry, lugar_procedencia_entry
 
-    asistencia_window = tk.Toplevel()
-    asistencia_window.title("Registro de Asistencia")
-    asistencia_window.geometry("600x600")
+    root = tk.Toplevel()
+    root.title("Registro de Asistencia")
+    root.geometry("600x600")
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
 
-    ttk.Label(asistencia_window, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
+    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
 
-    frame_dni = ttk.Frame(asistencia_window)
+    frame_dni = ttk.Frame(root)
     frame_dni.pack(pady=5)
     ttk.Label(frame_dni, text="DNI").pack(side=tk.LEFT, padx=5)
     dni_entry = ttk.Entry(frame_dni)
     dni_entry.pack(side=tk.LEFT, padx=5)
     ttk.Button(frame_dni, text="Buscar", command=consultar_y_mostrar_datos).pack(side=tk.LEFT, padx=5)
 
-    datos_consultados_label = ttk.Label(asistencia_window, text="", font=("Helvetica", 12))
+    datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12))
     datos_consultados_label.pack(pady=10)
 
-    boton_guardar = ttk.Button(asistencia_window, text="Registrar", command=guardar_datos, state=tk.DISABLED)
+    boton_guardar = ttk.Button(root, text="Registrar", command=guardar_datos, state=tk.DISABLED)
     boton_guardar.pack(fill=tk.X, padx=20, pady=10)
-    ttk.Button(asistencia_window, text="Mostrar Personas Guardadas", command=actualizar_lista_personas).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Mostrar Personas Guardadas", command=actualizar_lista_personas).pack(fill=tk.X, padx=20, pady=10)
 
-    lista_personas = tk.Listbox(asistencia_window, height=10, font=("Helvetica", 12))
+    lista_personas = tk.Listbox(root, height=10, font=("Helvetica", 12))
     lista_personas.pack(fill=tk.BOTH, padx=20, pady=10, expand=True)
     actualizar_lista_personas()
 
-    formulario_frame = ttk.Frame(asistencia_window)
+    formulario_frame = ttk.Frame(root)
     ttk.Label(formulario_frame, text="Apellido Paterno").pack(pady=5)
     apellido_paterno_entry = ttk.Entry(formulario_frame)
     apellido_paterno_entry.pack(pady=5)
@@ -227,7 +227,7 @@ def mostrar_pantalla_registro_asistencia():
     lugar_procedencia_entry.pack(pady=5)
     ttk.Button(formulario_frame, text="Registrar Manualmente", command=guardar_datos_manual).pack(pady=20)
 
-    ttk.Button(asistencia_window, text="Salir", command=asistencia_window.destroy).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
 
 # Función para la pantalla inicial
 def pantalla_inicial():
