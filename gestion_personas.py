@@ -389,17 +389,23 @@ def mostrar_pantalla_registro_asistencia():
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
+    style.configure("TFrame", background="#4a90e2")
+    style.configure("TLabel", background="#4a90e2", foreground="white")
+    style.configure("TButton", background="#007aff", foreground="white")
+    style.map("TButton", background=[('active', '#005bb5')])
 
-    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="#333").pack(pady=10)
+    root.configure(background="#4a90e2")
+
+    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="white", background="#4a90e2").pack(pady=10)
 
     frame_dni = ttk.Frame(root)
     frame_dni.pack(pady=5)
-    ttk.Label(frame_dni, text="DNI").pack(side=tk.LEFT, padx=5)
+    ttk.Label(frame_dni, text="DNI", background="#4a90e2", foreground="white").pack(side=tk.LEFT, padx=5)
     dni_entry = ttk.Entry(frame_dni)
     dni_entry.pack(side=tk.LEFT, padx=5)
     ttk.Button(frame_dni, text="Buscar", command=consultar_y_mostrar_datos).pack(side=tk.LEFT, padx=5)
 
-    datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12), foreground="#555")
+    datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12), foreground="white", background="#4a90e2")
     datos_consultados_label.pack(pady=10)
 
     boton_guardar = ttk.Button(root, text="Registrar", command=guardar_datos, state=tk.DISABLED)
@@ -425,8 +431,14 @@ def pantalla_inicial():
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
+    style.configure("TFrame", background="#4a90e2")
+    style.configure("TLabel", background="#4a90e2", foreground="white")
+    style.configure("TButton", background="#007aff", foreground="white")
+    style.map("TButton", background=[('active', '#005bb5')])
 
-    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="#333").pack(pady=20)
+    root.configure(background="#4a90e2")
+
+    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="white", background="#4a90e2").pack(pady=20)
 
     ttk.Button(root, text="Administrador", command=mostrar_login_administrador).pack(fill=tk.X, padx=20, pady=10)
     ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).pack(fill=tk.X, padx=20, pady=10)
