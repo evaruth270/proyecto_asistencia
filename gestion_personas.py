@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import random
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
@@ -339,6 +340,35 @@ def editar_registro():
 
     ttk.Button(edit_window, text="Guardar", command=guardar_datos_editados).pack(pady=20)
 
+# Función para animar elementos gráficos
+def animar_circulos(canvas, circulos):
+    for circulo in circulos:
+        x, y, r, dx, dy, color = circulo
+        canvas.move(circulo[5], dx, dy)
+        pos = canvas.coords(circulo[5])
+        if pos[0] <= 0 or pos[2] >= canvas.winfo_width():
+            dx = -dx
+        if pos[1] <= 0 or pos[3] >= canvas.winfo_height():
+            dy = -dy
+        circulo[3] = dx
+        circulo[4] = dy
+    canvas.after(50, animar_circulos, canvas, circulos)
+
+# Función para crear elementos gráficos en la pantalla
+def crear_elementos_graficos(canvas):
+    colores = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A1']
+    circulos = []
+    for _ in range(10):
+        x = random.randint(50, 450)
+        y = random.randint(50, 450)
+        r = random.randint(10, 30)
+        dx = random.choice([-2, 2])
+        dy = random.choice([-2, 2])
+        color = random.choice(colores)
+        id_circulo = canvas.create_oval(x-r, y-r, x+r, y+r, fill=color, outline=color)
+        circulos.append([x, y, r, dx, dy, id_circulo])
+    animar_circulos(canvas, circulos)
+
 # Función para mostrar la pantalla de administrador
 def mostrar_pantalla_administrador():
     admin_window = tk.Toplevel()
@@ -368,15 +398,20 @@ def mostrar_login_administrador():
     login_window.title("Login Administrador")
     login_window.geometry("300x200")
 
-    ttk.Label(login_window, text="Usuario").pack(pady=5)
+    canvas = tk.Canvas(login_window, width=300, height=200)
+    canvas.pack(fill="both", expand=True)
+
+    crear_elementos_graficos(canvas)
+
+    ttk.Label(login_window, text="Usuario").place(relx=0.5, rely=0.3, anchor=tk.CENTER)
     usuario_entry = ttk.Entry(login_window)
-    usuario_entry.pack(pady=5)
+    usuario_entry.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
 
-    ttk.Label(login_window, text="Contraseña").pack(pady=5)
+    ttk.Label(login_window, text="Contraseña").place(relx=0.5, rely=0.5, anchor=tk.CENTER)
     contrasena_entry = ttk.Entry(login_window, show="*")
-    contrasena_entry.pack(pady=5)
+    contrasena_entry.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 
-    ttk.Button(login_window, text="Login", command=lambda: validar_login(usuario_entry.get(), contrasena_entry.get())).pack(pady=20)
+    ttk.Button(login_window, text="Login", command=lambda: validar_login(usuario_entry.get(), contrasena_entry.get())).place(relx=0.5, rely=0.75, anchor=tk.CENTER)
 
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
@@ -385,6 +420,9 @@ def mostrar_pantalla_registro_asistencia():
     root = tk.Toplevel()
     root.title("Registro de Asistencia")
     root.geometry("600x600")
+
+    canvas = tk.Canvas(root, width=600, height=600)
+    canvas.pack(fill="both", expand=True)
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
@@ -422,11 +460,16 @@ def mostrar_pantalla_registro_asistencia():
     actualizar_lista_personas()
     root.after(5000, actualizar_lista_personas)
 
+    crear_elementos_graficos(canvas)
+
 # Función para la pantalla inicial
 def pantalla_inicial():
     root = tk.Tk()
     root.title("Sistema de Registro de Asistencia")
     root.geometry("400x300")
+
+    canvas = tk.Canvas(root, width=400, height=300)
+    canvas.pack(fill="both", expand=True)
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
@@ -443,6 +486,8 @@ def pantalla_inicial():
     ttk.Button(root, text="Administrador", command=mostrar_login_administrador).pack(fill=tk.X, padx=20, pady=10)
     ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).pack(fill=tk.X, padx=20, pady=10)
     ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
+
+    crear_elementos_graficos(canvas)
 
     root.mainloop()
 
