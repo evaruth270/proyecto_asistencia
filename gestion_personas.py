@@ -288,7 +288,9 @@ def editar_registro():
 
     index = selected_item[0]
     item = lista_personas.get(index)
-    id, nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia, fecha, hora = item.split(" - ")[1].split(", ")
+    parts = item.split(" - ")
+    id = parts[0].split(": ")[1]
+    nombre, apellido_paterno, apellido_materno, dni, lugar_procedencia, fecha, hora = parts[1].split(", ")
 
     edit_window = tk.Toplevel()
     edit_window.title("Editar Registro")
@@ -388,7 +390,7 @@ def mostrar_pantalla_registro_asistencia():
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
 
-    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16)).pack(pady=10)
+    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="#333").pack(pady=10)
 
     frame_dni = ttk.Frame(root)
     frame_dni.pack(pady=5)
@@ -397,7 +399,7 @@ def mostrar_pantalla_registro_asistencia():
     dni_entry.pack(side=tk.LEFT, padx=5)
     ttk.Button(frame_dni, text="Buscar", command=consultar_y_mostrar_datos).pack(side=tk.LEFT, padx=5)
 
-    datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12))
+    datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12), foreground="#555")
     datos_consultados_label.pack(pady=10)
 
     boton_guardar = ttk.Button(root, text="Registrar", command=guardar_datos, state=tk.DISABLED)
@@ -424,7 +426,7 @@ def pantalla_inicial():
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
 
-    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16)).pack(pady=20)
+    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="#333").pack(pady=20)
 
     ttk.Button(root, text="Administrador", command=mostrar_login_administrador).pack(fill=tk.X, padx=20, pady=10)
     ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).pack(fill=tk.X, padx=20, pady=10)
