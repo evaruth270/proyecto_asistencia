@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from itertools import cycle
 
 # Función para crear la base de datos y la tabla personas
 def crear_base_de_datos():
@@ -379,36 +378,6 @@ def mostrar_login_administrador():
 
     ttk.Button(login_window, text="Login", command=lambda: validar_login(usuario_entry.get(), contrasena_entry.get())).pack(pady=20)
 
-# Función para crear un fondo degradado
-def crear_fondo_degradado(canvas, ancho, alto, color1, color2):
-    steps = 100
-    for i in range(steps):
-        r1, g1, b1 = canvas.winfo_rgb(color1)
-        r2, g2, b2 = canvas.winfo_rgb(color2)
-        r = int(r1 + (r2 - r1) * i / steps)
-        g = int(g1 + (g2 - g1) * i / steps)
-        b = int(b1 + (b2 - b1) * i / steps)
-        color = f'#{r:04x}{g:04x}{b:04x}'
-        canvas.create_rectangle(0, i * alto / steps, ancho, (i + 1) * alto / steps, outline=color, fill=color)
-
-# Función para animar gráficos
-def animar_graficos(canvas, width, height):
-    colors = cycle(["#ff6666", "#ffcc66", "#66ff66", "#66ffcc", "#6699ff", "#cc66ff"])
-    x, y = width // 2, height // 2
-    r = 30
-    oval = canvas.create_oval(x - r, y - r, x + r, y + r, fill=next(colors))
-    
-    def move():
-        nonlocal r
-        r += 1
-        if r > 50:
-            r = 30
-            canvas.itemconfig(oval, fill=next(colors))
-        canvas.coords(oval, x - r, y - r, x + r, y + r)
-        canvas.after(50, move)
-
-    move()
-
 # Función para mostrar la pantalla de registro de asistencia
 def mostrar_pantalla_registro_asistencia():
     global boton_guardar, dni_entry, datos_consultados_label, lista_personas
@@ -416,10 +385,6 @@ def mostrar_pantalla_registro_asistencia():
     root = tk.Toplevel()
     root.title("Registro de Asistencia")
     root.geometry("600x600")
-
-    canvas = tk.Canvas(root, width=600, height=600)
-    canvas.pack(fill="both", expand=True)
-    crear_fondo_degradado(canvas, 600, 600, "#330066", "#9900cc")
 
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
@@ -429,30 +394,29 @@ def mostrar_pantalla_registro_asistencia():
     style.configure("TButton", background="#007aff", foreground="white")
     style.map("TButton", background=[('active', '#005bb5')])
 
-    canvas.create_text(300, 30, text="Registro de Asistencia", font=("Helvetica", 16, "bold"), fill="white")
+    root.configure(background="#4a90e2")
+
+    ttk.Label(root, text="Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="white", background="#4a90e2").pack(pady=10)
 
     frame_dni = ttk.Frame(root)
-    frame_dni.place(x=150, y=60)
-    ttk.Label(frame_dni, text="DNI").pack(side=tk.LEFT, padx=5)
+    frame_dni.pack(pady=5)
+    ttk.Label(frame_dni, text="DNI", background="#4a90e2", foreground="white").pack(side=tk.LEFT, padx=5)
     dni_entry = ttk.Entry(frame_dni)
     dni_entry.pack(side=tk.LEFT, padx=5)
     ttk.Button(frame_dni, text="Buscar", command=consultar_y_mostrar_datos).pack(side=tk.LEFT, padx=5)
 
     datos_consultados_label = ttk.Label(root, text="", font=("Helvetica", 12), foreground="white", background="#4a90e2")
-    datos_consultados_label.place(x=50, y=120)
+    datos_consultados_label.pack(pady=10)
 
     boton_guardar = ttk.Button(root, text="Registrar", command=guardar_datos, state=tk.DISABLED)
-    boton_guardar.place(x=200, y=180, width=200)
-    ttk.Button(root, text="Mostrar Personas Guardadas", command=actualizar_lista_personas).place(x=200, y=220, width=200)
+    boton_guardar.pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Mostrar Personas Guardadas", command=actualizar_lista_personas).pack(fill=tk.X, padx=20, pady=10)
 
     lista_personas = tk.Listbox(root, height=10, font=("Helvetica", 12))
-    lista_personas.place(x=50, y=260, width=500, height=200)
+    lista_personas.pack(fill=tk.BOTH, padx=20, pady=10, expand=True)
 
-    ttk.Button(root, text="Editar Persona", command=editar_registro).place(x=200, y=470, width=200)
-    ttk.Button(root, text="Salir", command=root.destroy).place(x=200, y=510, width=200)
-
-    # Animar gráficos
-    animar_graficos(canvas, 600, 600)
+    ttk.Button(root, text="Editar Persona", command=editar_registro).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
 
     # Actualizar lista al inicio y cada 5 segundos
     actualizar_lista_personas()
@@ -464,10 +428,6 @@ def pantalla_inicial():
     root.title("Sistema de Registro de Asistencia")
     root.geometry("400x300")
 
-    canvas = tk.Canvas(root, width=400, height=300)
-    canvas.pack(fill="both", expand=True)
-    crear_fondo_degradado(canvas, 400, 300, "#330066", "#9900cc")
-
     style = ttk.Style()
     style.configure("TButton", font=("Helvetica", 12), padding=10)
     style.configure("TLabel", font=("Helvetica", 12), padding=10)
@@ -476,11 +436,13 @@ def pantalla_inicial():
     style.configure("TButton", background="#007aff", foreground="white")
     style.map("TButton", background=[('active', '#005bb5')])
 
-    canvas.create_text(200, 50, text="Sistema de Registro de Asistencia", font=("Helvetica", 16, "bold"), fill="white")
+    root.configure(background="#4a90e2")
 
-    ttk.Button(root, text="Administrador", command=mostrar_login_administrador).place(x=100, y=100, width=200)
-    ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).place(x=100, y=150, width=200)
-    ttk.Button(root, text="Salir", command=root.destroy).place(x=100, y=200, width=200)
+    ttk.Label(root, text="Sistema de Registro de Asistencia", font=("Helvetica", 16, "bold"), foreground="white", background="#4a90e2").pack(pady=20)
+
+    ttk.Button(root, text="Administrador", command=mostrar_login_administrador).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Registro de Asistencia", command=mostrar_pantalla_registro_asistencia).pack(fill=tk.X, padx=20, pady=10)
+    ttk.Button(root, text="Salir", command=root.destroy).pack(fill=tk.X, padx=20, pady=10)
 
     root.mainloop()
 
